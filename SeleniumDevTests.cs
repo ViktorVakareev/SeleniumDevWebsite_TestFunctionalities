@@ -27,7 +27,6 @@ namespace TestProjectSeleniumDev
         [Test]
         public void SeleniumDevPageLoadedCorrectly()
         {
-
             Assert.AreEqual("https://www.selenium.dev/documentation/en/getting_started/", _driver.Url);
         }
 
@@ -47,20 +46,10 @@ namespace TestProjectSeleniumDev
         [Test]
         public void SeleniumDevClickGitHubRepoLink()
         {
-
-            //var gitHubRepoLink = _driver.FindElement(By.XPath("//*[@id='shortcuts']/ul/li[2]/a"));           
-
-            //Actions actions = new Actions(_driver);
-            //actions.MoveToElement(_driver.FindElement(By.XPath("//*[@id='shortcuts']/ul/li[2]/a")));
-            //actions.Perform();
-
             var js = (IJavaScriptExecutor)_driver;
-
-
 
             //Find element by link text and store in variable "Element"        		
             var gitHubRepoLink = _driver.FindElement(By.XPath("//*[@id='shortcuts']/ul/li[2]/a"));
-
 
             //This will scroll the page till the element is found		
             js.ExecuteScript("arguments[0].scrollIntoView();", gitHubRepoLink);
