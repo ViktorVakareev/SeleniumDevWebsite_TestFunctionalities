@@ -53,7 +53,7 @@ namespace TestProjectSeleniumDev
 
             //This will scroll the page till the element is found		
             js.ExecuteScript("arguments[0].scrollIntoView();", gitHubRepoLink);
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             gitHubRepoLink.Click();
 
             Assert.AreEqual("https://github.com/SeleniumHQ/seleniumhq.github.io", _driver.Url);
