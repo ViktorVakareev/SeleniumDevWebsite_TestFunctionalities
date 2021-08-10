@@ -2,6 +2,9 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
+using System;
 using System.Threading;
 
 namespace TestProjectSeleniumDev
@@ -9,55 +12,73 @@ namespace TestProjectSeleniumDev
     [TestFixture]
     public class SeleniumDevTests
     {
-        IWebDriver _driver;
+        private IWebDriver _driver;
+        const string _url = "https://www.selenium.dev/documentation/getting_started/";
 
         [SetUp]
         public void Setup()
         {
-            _driver = new ChromeDriver();
-            _driver.Navigate().GoToUrl("https://www.selenium.dev/documentation/en/getting_started/");
+            _driver = new ChromeDriver();         
+            
         }
 
         [TearDown]
         public void CleanUp()
         {
-            _driver.Quit(); ;
+            _driver.Quit(); 
         }
 
         [Test]
-        public void SeleniumDevPageLoadedCorrectly()
+        public void SeleniumDevPageLoadedCorrectly_When_PageUrlEntered()
         {
-            Assert.AreEqual("https://www.selenium.dev/documentation/en/getting_started/", _driver.Url);
+            _driver.Navigate().GoToUrl(_url);
+            Assert.AreEqual("https://www.selenium.dev/documentation/getting_started/", _driver.Url);
         }
 
         [Test]
-        public void SeleniumDevSelectGrid_Components()
+        public void ComponentsPageLoadedCorrectly_When_LinkClickedInSideBar()
         {
-            var gridLink = _driver.FindElement(By.XPath("//*[@id=\"sidebar\"]/div[2]/ul/li[9]/a"));
+            _driver.Navigate().GoToUrl(_url);
+            var gridLink = _driver.FindElement(By.LinkText("Grid"));
             gridLink.Click();
-            var componentsLink = _driver.FindElement(By.XPath("//*[@id=\"sidebar\"]/div[2]/ul/li[9]/ul/li[3]/ul/li[1]/a"));
+            var componentsLink = _driver.FindElement(By.LinkText("Components"));
             componentsLink.Click();
-            var componentsText = _driver.FindElement(By.XPath("//*[@id='body-inner']/h1")).Text;
+            var componentsText = _driver.FindElement(By.TagName("h1")).Text;
 
             Assert.AreEqual("Components", componentsText);
+            Assert.AreEqual("https://www.selenium.dev/documentation/grid/components_of_a_grid/", _driver.Url);
         }
-
 
         [Test]
-        public void SeleniumDevClickGitHubRepoLink()
+        public void GitHubRepoPageLoadedCorrectly_When_LinkClicked()
         {
-            var js = (IJavaScriptExecutor)_driver;
-
-            //Find element by link text and store in variable "Element"        		
-            var gitHubRepoLink = _driver.FindElement(By.XPath("//*[@id='shortcuts']/ul/li[2]/a"));
-
-            //This will scroll the page till the element is found		
+            _driver.Navigate().GoToUrl(_url);
+            var js = (IJavaScriptExecutor)_driver;    		
+            var gitHubRepoLink = _driver.FindElement(By.XPath("//*[@class='fab fa-github']"));                        
             js.ExecuteScript("arguments[0].scrollIntoView();", gitHubRepoLink);
-            Thread.Sleep(1000);
-            gitHubRepoLink.Click();
+            
+            gitHubRepoLink.Click();                                    // opens new tab!?
+            
+            _driver.SwitchTo().Window(_driver.WindowHandles[1]);
+            var headingGitHub = _driver.FindElement(By.LinkText("selenium"));
 
-            Assert.AreEqual("https://github.com/SeleniumHQ/seleniumhq.github.io", _driver.Url);
+            Assert.AreEqual("selenium", headingGitHub.Text);
+            Assert.AreEqual("https://github.com/seleniumhq/selenium", _driver.Url);
+            _driver.SwitchTo().Window(_driver.WindowHandles[0]);
         }
 
+        public IWebElement waitForElementToAppearUsingId(string Id)
+        {
+            var globalTimeout = TimeSpan.FromSeconds(8); 
+            var sleepInterval = TimeSpan.FromSeconds(3); 
+
+            var wait = new WebDriverWait
+                (new SystemClock(), _driver, globalTimeout, sleepInterval);
+
+            var element = wait.Until(ExpectedConditions.ElementExists(By.Id(Id))) ;           
+
+            return element;
+        }
+       
     }
 }
